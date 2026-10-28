@@ -1,7 +1,7 @@
 {
     "id": "osmium-links",
     "name": "Osmium Links",
-    "version": "0.1.0",
+    "version": "0.1.1",
     "description": "A list of external links (name, address, short description, logo) managed in admin, optionally in groups, for a theme to show anywhere",
     "category": "content",
     "author": {
@@ -27,7 +27,7 @@
             "items": [
                 {
                     "id": "osmium-links",
-                    "label": "Links",
+                    "label": "Osmium Links",
                     "icon": "bx bx-link",
                     "route": "admin/links",
                     "activePattern": "admin/links*",
@@ -40,7 +40,7 @@
                 "controller": "controllers/LinksController.php",
                 "class": "Osmium\\Services\\OsmiumLinks\\Controllers\\LinksController",
                 "method": "index",
-                "title": "Links"
+                "title": "Osmium Links"
             },
             "admin/links/action": {
                 "controller": "controllers/LinksController.php",
