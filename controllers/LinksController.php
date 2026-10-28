@@ -19,7 +19,8 @@ use Osmium\Services\OsmiumLinks\Models\LinkText;
 class LinksController extends AdminController
 {
     private const RECORD_TYPE = 'link';
-    private const LOGO_TYPES = ['image/jpeg' => 'jpg', 'image/png' => 'png', 'image/gif' => 'gif', 'image/webp' => 'webp'];
+    private const LOGO_TYPES = ['image/jpeg' => 'jpg', 'image/png' => 'png', 'image/gif' => 'gif', 'image/webp' => 'webp', 'image/avif' => 'avif'];
+    private const LOGO_MAX_DIMENSION = 400;
 
     // =========================================================================
     // Public Actions
@@ -216,7 +217,7 @@ class LinksController extends AdminController
     /**
      * The uploaded logo checked and ready to save, or null when none was sent
      *
-     * @return array{tmp_name: string, extension: string}|null
+     * @return array{tmp_name: string, extension: string, mimeType: string}|null
      */
     private function validateLogo(): ?array
     {
@@ -229,16 +230,19 @@ class LinksController extends AdminController
 
         $mimeType = (new \finfo(FILEINFO_MIME_TYPE))->file($file['tmp_name']);
         $typeNotAllowed = !isset(self::LOGO_TYPES[$mimeType]);
-        if ($typeNotAllowed) throw new \InvalidArgumentException('Logo must be a JPG, PNG, GIF or WebP image');
+        if ($typeNotAllowed) throw new \InvalidArgumentException('Logo must be a JPG, PNG, GIF, WebP or AVIF image');
 
         $maxUpload = OsmiumAdmin::getMaxUploadSize();
         $tooLarge = $file['size'] > $maxUpload['bytes'];
         if ($tooLarge) throw new \InvalidArgumentException('Logo is too large. Maximum ' . $maxUpload['formatted']);
 
-        return ['tmp_name' => $file['tmp_name'], 'extension' => self::LOGO_TYPES[$mimeType]];
+        return ['tmp_name' => $file['tmp_name'], 'extension' => self::LOGO_TYPES[$mimeType], 'mimeType' => $mimeType];
     }
 
-    /** Moves the checked upload into the logo folder under a new random name and returns that name */
+    /**
+     * Saves the checked upload into the logo folder under a new random name and returns that name. A logo with a side
+     * over LOGO_MAX_DIMENSION is scaled down to fit (never up); a smaller one is moved as uploaded.
+     */
     private function saveLogo(array $logo): string
     {
         $dir = $_SERVER['DOCUMENT_ROOT'] . LinkText::LOGO_DIR;
@@ -246,10 +250,54 @@ class LinksController extends AdminController
         if ($dirMissing) \mkdir(directory: $dir, permissions: 0755, recursive: true);
 
         $filename = \bin2hex(\random_bytes(8)) . '.' . $logo['extension'];
-        $moved = \move_uploaded_file(from: $logo['tmp_name'], to: $dir . $filename);
-        if (!$moved) throw new \Exception('Failed to save the logo');
+        $size = \getimagesize($logo['tmp_name']);
+        $isImage = $size !== false;
+        if (!$isImage) throw new \Exception('Failed to read the logo');
+
+        $needsResize = \max($size[0], $size[1]) > self::LOGO_MAX_DIMENSION;
+        $saved = $needsResize
+            ? $this->saveResized(logo: $logo, size: $size, path: $dir . $filename)
+            : \move_uploaded_file(from: $logo['tmp_name'], to: $dir . $filename);
+        if (!$saved) throw new \Exception('Failed to save the logo');
 
         return $filename;
+    }
+
+    /**
+     * @param array{0: int, 1: int} $size Width and height of the upload
+     */
+    private function saveResized(array $logo, array $size, string $path): bool
+    {
+        $gdName = $logo['extension'] === 'jpg' ? 'jpeg' : $logo['extension']; // GD's name for the format
+        $decoder = 'imagecreatefrom' . $gdName;
+        $encoder = 'image' . $gdName;
+        $unsupported = !\function_exists($decoder) || !\function_exists($encoder);
+        if ($unsupported) throw new \Exception("This server can't resize {$logo['extension']} images. Try JPG or PNG instead.");
+
+        $source = $decoder($logo['tmp_name']);
+        if (!$source) throw new \Exception('Failed to process the logo');
+
+        $scale = self::LOGO_MAX_DIMENSION / \max($size[0], $size[1]);
+        $width = (int) \round($size[0] * $scale);
+        $height = (int) \round($size[1] * $scale);
+
+        $resized = \imagecreatetruecolor(width: $width, height: $height);
+        \imagealphablending(image: $resized, enable: false);
+        \imagesavealpha(image: $resized, enable: true);
+        \imagecopyresampled(
+            dst_image: $resized,
+            src_image: $source,
+            dst_x: 0,
+            dst_y: 0,
+            src_x: 0,
+            src_y: 0,
+            dst_width: $width,
+            dst_height: $height,
+            src_width: $size[0],
+            src_height: $size[1],
+        );
+
+        return $encoder($resized, $path);
     }
 
     private function applyLogoChange(Link $model, array $existing, ?array $logo, bool $remove): void
