@@ -31,7 +31,7 @@
                     "icon": "bx bx-link",
                     "route": "admin/links",
                     "activePattern": "admin/links*",
-                    "color": "#6f42c1",
+                    "color": "#e83e8c",
                     "placement": "top",
                     "role": null
                 }
