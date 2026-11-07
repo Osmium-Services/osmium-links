@@ -338,7 +338,7 @@ class LinksController extends AdminController
             'groupName' => $row['group_name'] ?? '',
             'sortOrder' => (int) $row['sort_order'],
             'hasLogo' => $hasLogo,
-            'logoHtml' => $this->logoHtml($row['logo_filename'] ?? null),
+            'logoUrl' => $this->logoUrl($row['logo_filename'] ?? null),
         ];
     }
 
@@ -367,14 +367,12 @@ class LinksController extends AdminController
         ];
     }
 
-    private function logoHtml(?string $filename): string
+    private function logoUrl(?string $filename): string
     {
         $hasFile = !empty($filename);
         if (!$hasFile) return '';
 
-        $src = \htmlspecialchars(LinkText::LOGO_DIR . \basename($filename));
-
-        return '<img src="' . $src . '" alt="" height="28" style="max-width: 80px; object-fit: contain;">';
+        return LinkText::LOGO_DIR . \basename($filename);
     }
 
     private function logChange(string $action, int $id, string $name): void

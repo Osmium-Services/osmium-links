@@ -5,7 +5,7 @@ declare(strict_types=1);
 use Osmium\Modules\Admin\Core\ListView;
 
 /**
- * Links lists, rendered by Osmium\Modules\Admin\Core\ListView. Row fields (logoHtml, groupName...) are prepared by
+ * Links lists, rendered by Osmium\Modules\Admin\Core\ListView. Row fields (logoUrl, groupName...) are prepared by
  * LinksController::formatLink() and formatRecentLink()/formatDeletedLink().
  */
 require_once 'app/core/admin/services/ChangedByCell.php';
@@ -23,10 +23,10 @@ return [
         'order' => null, // Server order: ungrouped first, then group, display order and name
         'grid' => require __DIR__ . '/../grids/links.php',
         'columns' => [
-            ['key' => 'logoHtml', 'label' => '', 'type' => 'raw', 'sortable' => false, 'nowrap' => true],
-            ['key' => 'name', 'label' => 'Name', 'type' => 'text', 'strong' => true],
-            ['key' => 'url', 'label' => 'Web address', 'type' => 'text', 'small' => true, 'fill' => true],
-            ['key' => 'groupName', 'label' => 'Group', 'type' => 'text', 'nowrap' => true],
+            ['key' => 'logoUrl', 'label' => '', 'type' => 'image', 'altKey' => 'name', 'sortable' => false, 'hideBelow' => 'md'],
+            ['key' => 'name', 'label' => 'Name', 'type' => 'text', 'strong' => true, 'fill' => true],
+            ['key' => 'url', 'label' => 'Web address', 'type' => 'text', 'small' => true, 'nowrap' => true],
+            ['key' => 'groupName', 'label' => 'Group', 'type' => 'text', 'nowrap' => true, 'hideBelow' => 'md'],
         ],
         'actions' => [
             ['label' => 'Edit', 'icon' => 'bx-edit-alt', 'event' => 'edit'],
