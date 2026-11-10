@@ -17,6 +17,63 @@
         resultDiv.textContent = '';
     }
 
+    // Logo drop zone: the chosen file stays in the hidden file input and is sent when the link is saved
+    const zone = document.getElementById('linkLogoZone');
+    const logoInput = document.getElementById('linkLogo');
+    const removeBox = document.getElementById('linkRemoveLogo');
+    const preview = zone.querySelector('.link-logo-preview');
+    const empty = zone.querySelector('.link-logo-empty');
+    const removeButton = zone.querySelector('.link-logo-remove');
+    let objectUrl = null;
+
+    function showLogo(src) {
+        if (objectUrl && src !== objectUrl) {
+            URL.revokeObjectURL(objectUrl);
+            objectUrl = null;
+        }
+        preview.classList.toggle('d-none', !src);
+        empty.classList.toggle('d-none', !!src);
+        removeButton.classList.toggle('d-none', !src);
+        if (src) preview.src = src;
+    }
+
+    function chooseLogo(file) {
+        if (!file || !/^image\/(jpeg|png|gif|webp|avif)$/.test(file.type)) return;
+
+        const transfer = new DataTransfer();
+        transfer.items.add(file);
+        logoInput.files = transfer.files;
+        removeBox.checked = false;
+        objectUrl = URL.createObjectURL(file);
+        showLogo(objectUrl);
+    }
+
+    function initLogoZone() {
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(function (name) {
+            zone.addEventListener(name, function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+            });
+        });
+        ['dragenter', 'dragover'].forEach(function (name) {
+            zone.addEventListener(name, function () { zone.classList.add('drag-active'); });
+        });
+        ['dragleave', 'drop'].forEach(function (name) {
+            zone.addEventListener(name, function () { zone.classList.remove('drag-active'); });
+        });
+        zone.addEventListener('drop', function (e) { chooseLogo(e.dataTransfer.files[0]); });
+        zone.addEventListener('click', function (e) {
+            if (!e.target.closest('.link-logo-remove')) logoInput.click();
+        });
+        logoInput.addEventListener('change', function () { chooseLogo(logoInput.files[0]); });
+        removeButton.addEventListener('click', function (e) {
+            e.stopPropagation();
+            logoInput.value = '';
+            removeBox.checked = true;
+            showLogo('');
+        });
+    }
+
     function openModal(link) {
         clearResult();
 
@@ -30,7 +87,7 @@
         document.getElementById('linkSortOrder').value = isEdit ? link.sortOrder : 0;
         document.getElementById('linkLogo').value = '';
         document.getElementById('linkRemoveLogo').checked = false;
-        document.getElementById('linkRemoveLogoWrap').classList.toggle('d-none', !(isEdit && link.hasLogo));
+        showLogo(isEdit && link.hasLogo ? link.logoUrl : '');
 
         new bootstrap.Modal(document.getElementById('linkModal')).show();
     }
@@ -91,6 +148,7 @@
         });
 
         document.getElementById('linkForm').addEventListener('submit', handleSubmit);
+        initLogoZone();
     }
 
     document.addEventListener('DOMContentLoaded', init);

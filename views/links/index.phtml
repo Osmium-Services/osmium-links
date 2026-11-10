@@ -67,12 +67,20 @@ $listContext = [
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label" for="linkLogo">Logo (optional)</label>
-                        <input type="file" class="form-control" id="linkLogo" accept="image/jpeg,image/png,image/gif,image/webp,image/avif">
-                        <div class="form-check mt-2 d-none" id="linkRemoveLogoWrap">
-                            <input class="form-check-input" type="checkbox" id="linkRemoveLogo">
-                            <label class="form-check-label" for="linkRemoveLogo">Remove the current logo</label>
+                        <label class="form-label">Logo (optional)</label>
+                        <div class="link-logo-zone" id="linkLogoZone">
+                            <button type="button" class="btn btn-sm btn-icon btn-danger link-logo-remove d-none" title="Remove logo">
+                                <i class="bx bx-trash"></i>
+                            </button>
+                            <div class="link-logo-empty">
+                                <i class="bx bx-cloud-upload"></i>
+                                <p class="mb-1 mt-2 fw-medium">Drag &amp; drop or click to upload</p>
+                                <small class="text-muted">JPG, PNG, GIF, WebP or AVIF</small>
+                            </div>
+                            <img src="" alt="" class="link-logo-preview d-none">
                         </div>
+                        <input type="file" class="d-none" id="linkLogo" accept="image/jpeg,image/png,image/gif,image/webp,image/avif">
+                        <input type="checkbox" class="d-none" id="linkRemoveLogo">
                     </div>
 
                     <div id="linkResult" class="alert d-none"></div>
@@ -92,5 +100,6 @@ $listContext = [
         links: <?= \json_encode(\array_column($admin['links'], null, 'id'), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>
     };
 </script>
+<link rel="stylesheet" href="/assets/services/osmium-links/links.css<?= $adminAssetVersion('/assets/services/osmium-links/links.css') ?>">
 <script src="/assets/admin/js/list-view.js<?= $adminAssetVersion('/assets/admin/js/list-view.js') ?>"></script>
 <script src="/assets/services/osmium-links/links.js<?= $adminAssetVersion('/assets/services/osmium-links/links.js') ?>"></script>
