@@ -18,6 +18,7 @@ return [
         'title' => 'Links',
         'noun' => ['link', 'links'],
         'endpoint' => 'links/action/',
+        'presence' => 'link',
         'note' => 'External links a theme can show, optionally in groups such as Brands or Suppliers. Ungrouped links come first.',
         'emptyText' => 'No links yet - use Add Link to create one.',
         'order' => null, // Server order: ungrouped first, then group, display order and name

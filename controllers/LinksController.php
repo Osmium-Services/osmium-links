@@ -33,6 +33,7 @@ class LinksController extends AdminController
 
         $this->data['admin']['isAdmin'] = $this->isAdmin();
         $this->data['admin']['lists'] = require __DIR__ . '/../lists/links.php';
+        $this->data['admin']['activeEditors'] = $this->activeEditors(self::RECORD_TYPE);
         $this->data['admin']['links'] = \array_map($this->formatLink(...), $model->listAll());
         $this->data['admin']['recentLinks'] = \array_map($this->formatRecentLink(...), $model->listRecent());
         $this->data['admin']['deletedLinks'] = \array_map($this->formatDeletedLink(...), $model->listDeleted());
@@ -50,6 +51,8 @@ class LinksController extends AdminController
         $input = $this->admin->auth->getJsonInput();
         $action = $input['action'] ?? '';
         $id = (int) ($input['id'] ?? 0);
+
+        $this->handlePresence(action: $action, input: $input, recordType: self::RECORD_TYPE);
 
         $csrfValid = $this->admin->auth->validateCsrfJson($input);
         if (!$csrfValid) $this->admin->jsonError('Invalid request token. Please refresh and try again.');

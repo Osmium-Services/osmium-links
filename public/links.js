@@ -3,6 +3,7 @@
 
     const config = window.OsmiumLinksConfig || {};
     const actionUrl = config.basePath + 'links/action/';
+    let presence = null;
 
     function showError(message) {
         const resultDiv = document.getElementById('linkResult');
@@ -90,6 +91,7 @@
         showLogo(isEdit && link.hasLogo ? link.logoUrl : '');
 
         new bootstrap.Modal(document.getElementById('linkModal')).show();
+        presence.open(isEdit ? link.id : null);
     }
 
     // Multipart, because the logo file travels with the details; the token goes in the form like any other field
@@ -147,6 +149,7 @@
             openModal(config.links[e.detail.id]);
         });
 
+        presence = initModalPresence(actionUrl, '#linkModal');
         document.getElementById('linkForm').addEventListener('submit', handleSubmit);
         initLogoZone();
     }
