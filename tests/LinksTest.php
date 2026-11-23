@@ -39,16 +39,16 @@ class LinksTest extends DatabaseTestCase
     public function test_grouped_puts_ungrouped_first_and_orders_within_groups(): void
     {
         $link = new Link($this->db);
-        $link->create(name: 'Zed', url: 'https://z.example', description: null, groupName: 'Brands', sortOrder: 2);
-        $link->create(name: 'Alpha', url: 'https://a.example', description: 'First', groupName: 'Brands', sortOrder: 1);
+        $link->create(name: 'Zed', url: 'https://z.example', description: null, groupName: 'Test Brands', sortOrder: 2);
+        $link->create(name: 'Alpha', url: 'https://a.example', description: 'First', groupName: 'Test Brands', sortOrder: 1);
         $link->create(name: 'Loose', url: 'https://l.example', description: null, groupName: null, sortOrder: 0);
-        $link->create(name: 'Supplier', url: 'https://s.example', description: null, groupName: 'Suppliers', sortOrder: 0);
+        $link->create(name: 'Supplier', url: 'https://s.example', description: null, groupName: 'Test Suppliers', sortOrder: 0);
 
         $groups = (new Links($this->db))->grouped();
 
         $this->assertSame('', \array_key_first($groups));
-        $this->assertSame(['Alpha', 'Zed'], \array_column($groups['Brands'], 'name'));
-        $this->assertSame(['Supplier'], \array_column($groups['Suppliers'], 'name'));
+        $this->assertSame(['Alpha', 'Zed'], \array_column($groups['Test Brands'], 'name'));
+        $this->assertSame(['Supplier'], \array_column($groups['Test Suppliers'], 'name'));
         $this->assertContains('Loose', \array_column($groups[''], 'name'));
     }
 

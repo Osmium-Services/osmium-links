@@ -1,7 +1,7 @@
 {
     "id": "osmium-links",
     "name": "Osmium Links",
-    "version": "0.4.0",
+    "version": "0.5.0",
     "description": "A list of external links (name, address, short description, logo) managed in admin, optionally in groups, for a theme to show anywhere",
     "category": "content",
     "author": {
@@ -10,7 +10,7 @@
     "license": "proprietary",
 
     "requires": {
-        "osmium": ">=1.0.0",
+        "osmium": ">=2.4.0",
         "php": ">=8.1",
         "services": []
     },
