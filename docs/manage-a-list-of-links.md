@@ -1,6 +1,7 @@
 ---
 title: Manage a list of links
 tags: links, external links, partners, brands, logo, group, directory
+page: admin/links
 ---
 
 **Osmium Links** keeps a list of external links, such as partners or brands, for your site's design to show.
